@@ -16,7 +16,7 @@ libraryDependencies ++= Vector(
   Library.circeParser,
   Library.circeJava8,
   Library.slick,
-  Library.hikariCP,
+  Library.hikariCP,x`
   Library.mariaDb,
   Library.swaggerAkka,
   Library.akkaLog4j,
