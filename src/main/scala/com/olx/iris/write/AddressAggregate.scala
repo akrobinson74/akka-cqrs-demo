@@ -1,10 +1,12 @@
 package com.olx.iris.write
-import akka.actor.{ ActorLogging, ActorRef, Props, SupervisorStrategy }
-import akka.persistence.{ AtLeastOnceDelivery, PersistentActor }
-import com.olx.iris.model.{ AddAddressCommand, Address, AddressAddedResponse, AddressExistsResponse }
-import com.olx.iris.write.AddressAggregate.{ Event, GetAddressesForwardResponse, MsgAddAddress, MsgConfirmed }
-import com.olx.iris.write.AddressEventSender.{ Confirm, Msg }
-import com.olx.iris.write.AddressWriteRepository.{ AddAddress, ConfirmAddAddress, GetAddresses }
+import java.util.concurrent.TimeUnit
+
+import akka.actor.{ActorLogging, ActorRef, Props, SupervisorStrategy}
+import akka.persistence.{AtLeastOnceDelivery, PersistentActor}
+import com.olx.iris.model.{AddAddressCommand, Address, AddressAddedResponse, AddressExistsResponse}
+import com.olx.iris.write.AddressAggregate.{Event, GetAddressesForwardResponse, MsgAddAddress, MsgConfirmed}
+import com.olx.iris.write.AddressEventSender.{Confirm, Msg}
+import com.olx.iris.write.AddressWriteRepository.{AddAddress, ConfirmAddAddress, GetAddresses}
 
 class AddressAggregate extends PersistentActor with AtLeastOnceDelivery with ActorLogging {
 
@@ -16,7 +18,7 @@ class AddressAggregate extends PersistentActor with AtLeastOnceDelivery with Act
 
   override def persistenceId: String = "address-aggregate"
   override val supervisorStrategy = SupervisorStrategy.stoppingStrategy
-  implicit val timeout = Timeout(100 milliseconds)
+  implicit val timeout = Timeout(100, TimeUnit.MILLISECONDS)
 
   private val addressWriteRepository = context.watch(createAddressWriteRepository())
   private val addressEventSender = context.watch(createAddressEventSender())
@@ -30,7 +32,7 @@ class AddressAggregate extends PersistentActor with AtLeastOnceDelivery with Act
     case AddAddressCommand(newAddress) =>
       val origSender = sender()
       val addressesFuture = addressWriteRepository ? GetAddresses
-      pipe(addressesFuture.mapTo[Set[Address]].map(GetAddressesForwardResponse(origSender, _, newAddress))) to self
+      val _ = pipe(addressesFuture.mapTo[Set[Address]].map(GetAddressesForwardResponse(origSender, _, newAddress))) to self
 
     case GetAddressesForwardResponse(origSender, addresses, newAddress) =>
       if (addresses.exists(_.userId == newAddress.userId))
@@ -55,7 +57,8 @@ class AddressAggregate extends PersistentActor with AtLeastOnceDelivery with Act
     case MsgAddAddress(a) =>
       deliver(addressEventSender.path)(deliveryId => Msg(deliveryId, a))
       deliver(addressWriteRepository.path)(deliveryId => AddAddress(deliveryId, a))
-    case MsgConfirmed(deliveryId) => confirmDelivery(deliveryId)
+    case MsgConfirmed(deliveryId) =>
+      val _ = confirmDelivery(deliveryId)
   }
 }
 

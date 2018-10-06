@@ -1,10 +1,13 @@
 package com.olx.iris
 
-import akka.actor.{ Actor, ExtendedActorSystem, Extension, ExtensionKey }
+import akka.actor.{ Actor, ExtendedActorSystem, Extension, ExtensionId }
 
 import scala.concurrent.duration.{ FiniteDuration, MILLISECONDS }
 
-object Settings extends ExtensionKey[Settings]
+object Settings extends ExtensionId[Settings] {
+  override def createExtension(system: ExtendedActorSystem): Settings =
+    system.dynamicAccess.createInstanceFor[Settings](clazz = Settings.getClass, args = List(classOf[Settings] → system)).get
+}
 
 class Settings(system: ExtendedActorSystem) extends Extension {
 

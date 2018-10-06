@@ -1,9 +1,9 @@
 package com.olx.iris.read
 import java.sql.Timestamp
 
-import com.olx.iris.model.{DBOrder, Order}
-import nl.codecentric.coffee.util.DatabaseService
-import slick.profile.SqlProfile.ColumnOption.SqlType
+import com.olx.iris.model.DBOrder
+import com.olx.iris.util.DatabaseService
+import slick.sql.SqlProfile.ColumnOption.SqlType
 
 final case class OrderEntity(
   id: Option[Long] = None,

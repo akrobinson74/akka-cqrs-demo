@@ -6,11 +6,10 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.olx.iris.model.{ AddAddressCommand, Address, AddressAddedResponse, AddressExistsResponse }
 import com.olx.iris.read.AddressRepository
-import de.heikoseeberger.akkahttpcirce.CirceSupport
+import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.swagger.annotations.{ Api, ApiImplicitParam, ApiImplicitParams, ApiOperation, ApiResponse, ApiResponses }
 import javax.ws.rs.Path
 
-import scala.concurrent.ExecutionContext
 import scala.util.{ Failure, Success }
 
 @Path("/addresses")
@@ -19,10 +18,9 @@ class AddressService(
   addressAggregate: ActorRef,
   addressRepository: AddressRepository,
   internalTimeout: Timeout
-)(implicit executionContext: ExecutionContext)
-    extends Directives {
+) extends Directives {
 
-  import CirceSupport._
+  import FailFastCirceSupport._
   import io.circe.generic.auto._
 
   implicit val timeout = internalTimeout

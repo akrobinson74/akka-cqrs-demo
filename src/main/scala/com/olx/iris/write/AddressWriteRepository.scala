@@ -1,4 +1,5 @@
 package com.olx.iris.write
+
 import akka.actor.{ActorLogging, Props}
 import akka.persistence.PersistentActor
 import com.olx.iris.model.Address

@@ -2,8 +2,8 @@ package com.olx.iris.read
 import java.sql.Timestamp
 
 import com.olx.iris.model.DBCustomer
-import nl.codecentric.coffee.util.DatabaseService
-import slick.profile.SqlProfile.ColumnOption.SqlType
+import com.olx.iris.util.DatabaseService
+import slick.sql.SqlProfile.ColumnOption.SqlType
 
 final case class CustomerEntity(
   id: Option[Long] = None,

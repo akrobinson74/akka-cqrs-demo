@@ -4,17 +4,15 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props, Status}
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
-import akka.pattern.{ ask, pipe }
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.pattern.pipe
+import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.olx.iris.read.AddressRepository
-import nl.codecentric.coffee.swagger.SwaggerDocService
-
-import scala.concurrent.ExecutionContext
+import com.olx.iris.swagger.SwaggerDocService
 
 object HttpService {
 
-  private[coffee] case object Stop
+  private[iris] case object Stop
 
   // $COVERAGE-OFF$
   final val Name = "http-service"
@@ -29,11 +27,11 @@ object HttpService {
   ): Props =
     Props(new HttpService(address, port, internalTimeout, addressAggregate, addressRepository))
 
-  private[coffee] def route(
+  private[iris] def route(
     httpService: ActorRef,
     addressService: AddressService,
     swaggerDocService: SwaggerDocService
-  )(implicit ec: ExecutionContext, mat: Materializer) = {
+  ) = {
     import Directives._
 
     // format: OFF
