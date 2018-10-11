@@ -1,17 +1,11 @@
 import CompilerFlags._
 
-//lazy val coffee = project
-//  .copy(id = "iris-cqrs-demo")
-//  .in(file("."))
-//  .enablePlugins(AutomateHeaderPlugin, GitVersioning)
-
-name := "iris-cqrs-demo"
+name := "akka-cqrs-demo"
 organization := "com.olx"
 version := "1.0"
 
 scalaVersion := "2.12.6"
 scalacOptions ++= compilerFlags
-//scalacOptions in (Compile, console) ~= filterExcludedReplOptions
 
 lazy val akkaVersion = "2.5.16"
 lazy val akkaHttpVersion = "10.1.5"
@@ -45,6 +39,3 @@ libraryDependencies ++= Vector(
   Library.scalaCheck % "test",
   Library.scalaTest % "test"
 )
-
-//initialCommands := """|import nl.codecentric.coffee._
-//                      |""".stripMargin

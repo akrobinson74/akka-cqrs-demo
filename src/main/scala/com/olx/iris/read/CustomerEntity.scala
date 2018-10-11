@@ -10,8 +10,7 @@ final case class CustomerEntity(
   createdAt: Option[Timestamp] = None,
   updatedAt: Option[Timestamp] = None,
   messageSeqNr: Long,
-  customerInfo: DBCustomer
-)
+  customerInfo: DBCustomer)
 
 trait CustomerEntityTable {
 
@@ -25,8 +24,7 @@ trait CustomerEntityTable {
     def updatedAt =
       column[Timestamp](
         "UPDATED_AT",
-        SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP")
-      )
+        SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"))
     def messageSeqNr = column[Long]("MSG_SEQ_NR")
     def addressId = column[Long]("ADDRESS_ID")
     def businessName = column[Option[String]]("BUSINESS_NAME")
@@ -34,7 +32,7 @@ trait CustomerEntityTable {
     def firstName = column[String]("FIRST_NAME")
     def languange = column[String]("LANGUAGE")
     def lastName = column[String]("LAST_NAME")
-    def `type` = column[String]("TYPE")
+    def customerType = column[String]("TYPE")
     def userId = column[String]("USER_ID")
     def vatNumber = column[Option[String]]("VAT_NUMBER")
 
@@ -44,13 +42,13 @@ trait CustomerEntityTable {
         createdAt.?,
         updatedAt.?,
         messageSeqNr,
-        (addressId, businessName, emailAddress, firstName, languange, lastName, `type`, userId, vatNumber)).shaped <> ({
-        case (id, createdAt, updatedAt, messageSeqNr, customerInfo) =>
-          CustomerEntity(id, createdAt, updatedAt, messageSeqNr, DBCustomer.tupled.apply(customerInfo))
-      }, { ce: CustomerEntity =>
-        def f1(c: DBCustomer) = DBCustomer.unapply(c).get
-        Some((ce.id, ce.createdAt, ce.updatedAt, ce.messageSeqNr, f1(ce.customerInfo)))
-      })
+        (addressId, businessName, emailAddress, firstName, languange, lastName, customerType, userId, vatNumber)).shaped <> ({
+          case (id, createdAt, updatedAt, messageSeqNr, customerInfo) =>
+            CustomerEntity(id, createdAt, updatedAt, messageSeqNr, DBCustomer.tupled.apply(customerInfo))
+        }, { ce: CustomerEntity =>
+          def f1(c: DBCustomer) = DBCustomer.unapply(c).get
+          Some((ce.id, ce.createdAt, ce.updatedAt, ce.messageSeqNr, f1(ce.customerInfo)))
+        })
 
     def idx_customer = index("idx_customer", userId, unique = true)
   }

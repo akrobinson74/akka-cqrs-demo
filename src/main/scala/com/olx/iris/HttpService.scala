@@ -1,13 +1,13 @@
 package com.olx.iris
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, Status}
+import akka.actor.{ Actor, ActorLogging, ActorRef, Props, Status }
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.pipe
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.olx.iris.read.AddressRepository
+import com.olx.iris.read.AddressReadRepository
 import com.olx.iris.swagger.SwaggerDocService
 
 object HttpService {
@@ -23,15 +23,13 @@ object HttpService {
     port: Int,
     internalTimeout: Timeout,
     addressAggregate: ActorRef,
-    addressRepository: AddressRepository
-  ): Props =
+    addressRepository: AddressReadRepository): Props =
     Props(new HttpService(address, port, internalTimeout, addressAggregate, addressRepository))
 
   private[iris] def route(
     httpService: ActorRef,
     addressService: AddressService,
-    swaggerDocService: SwaggerDocService
-  ) = {
+    swaggerDocService: SwaggerDocService) = {
     import Directives._
 
     // format: OFF
@@ -51,7 +49,7 @@ object HttpService {
   }
 }
 
-class HttpService(address: String, port: Int, internalTimeout: Timeout, addressAggregate: ActorRef, addressRepository: AddressRepository)
+class HttpService(address: String, port: Int, internalTimeout: Timeout, addressAggregate: ActorRef, addressRepository: AddressReadRepository)
   extends Actor with ActorLogging {
   import HttpService._
   import context.dispatcher

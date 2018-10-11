@@ -20,4 +20,12 @@ object ProductType {
   case object TOPUP extends ProductType {
     override val fiqasTransactionType: String = "WalletTopUp"
   }
+
+  def apply(kind: String): ProductType = kind match {
+    case "AD_UPGRADE" => AD_UPGRADE
+    case "EFFORT" => EFFORT
+    case "LIMIT" => LIMIT
+    case "REWARD" => REWARD
+    case "TOPUP" => TOPUP
+  }
 }

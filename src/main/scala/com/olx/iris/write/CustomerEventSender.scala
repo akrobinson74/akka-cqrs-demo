@@ -2,37 +2,35 @@ package com.olx.iris.write
 
 import akka.actor.{ Actor, ActorLogging, ActorPath, Props, Status }
 import akka.camel.CamelMessage
-import com.olx.iris.model.Address
+import com.olx.iris.model.Customer
+import com.olx.iris.write.CustomerEventSender.{ Confirm, Msg }
 import org.apache.camel.component.rabbitmq.RabbitMQConstants
 
 import scala.collection.immutable
 
-object AddressEventSender {
+object CustomerEventSender {
+  final val Name = "customer-event-sender"
 
-  final val Name = "address-event-sender"
+  def props(): Props = Props(new CustomerEventSender())
 
-  def props(): Props = Props(new AddressEventSender())
-
-  final case class Msg(deliveryId: Long, address: Address)
-
+  final case class Msg(deliveryId: Long, customer: Customer)
   final case class Confirm(deliveryId: Long)
 }
 
-class AddressEventSender extends Actor with ActorLogging {
-  import AddressEventSender._
+class CustomerEventSender extends Actor with ActorLogging {
+
   import io.circe.generic.auto._
   import io.circe.syntax._
 
   private val amqpSender = context.watch(context.actorOf(Props[AmqpSender]))
-
   private var unconfirmed = immutable.SortedMap.empty[Long, ActorPath]
 
   override def receive: Receive = {
-    case Msg(deliveryId, address) =>
-      log.info("Sending msg for address: {}", address.userId)
+    case Msg(deliveryId, customer) =>
+      log.info("Sending msg for customer: {}", customer.userId)
       unconfirmed = unconfirmed.updated(deliveryId, sender().path)
       val headersMap = Map(RabbitMQConstants.MESSAGE_ID -> deliveryId, RabbitMQConstants.CORRELATIONID -> deliveryId)
-      amqpSender ! CamelMessage(address.asJson.noSpaces, headersMap)
+      amqpSender ! CamelMessage(customer.asJson.noSpaces, headersMap)
 
     case CamelMessage(_, headers) =>
       val deliveryId: Long = headers.getOrElse(RabbitMQConstants.MESSAGE_ID, -1L).asInstanceOf[Long]

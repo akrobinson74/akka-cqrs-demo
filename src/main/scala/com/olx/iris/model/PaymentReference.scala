@@ -4,6 +4,6 @@ import java.time.ZonedDateTime
 
 case class PaymentReference(
   amount: MonetaryAmount,
-  executionTime: ZonedDateTime
-)
+  executionTime: ZonedDateTime,
+  paymentIdentifier: String)
 

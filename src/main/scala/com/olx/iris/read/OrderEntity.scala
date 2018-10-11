@@ -1,4 +1,5 @@
 package com.olx.iris.read
+
 import java.sql.Timestamp
 
 import com.olx.iris.model.DBOrder
@@ -10,8 +11,7 @@ final case class OrderEntity(
   createdAt: Option[Timestamp] = None,
   updatedAt: Option[Timestamp] = None,
   messageSeqNr: Long,
-  orderInfo: DBOrder
-)
+  orderInfo: DBOrder)
 
 trait OrderEntityTable {
 
@@ -25,18 +25,17 @@ trait OrderEntityTable {
     def updatedAt =
       column[Timestamp](
         "UPDATED_AT",
-        SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP")
-      )
+        SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"))
     def messageSeqNr = column[Long]("MSG_SEQ_NR")
-    def customerId = column[Long]("CUSTOMER_ID")
+    def userId = column[Long]("USER_ID")
     def orderId = column[String]("ORDER_ID")
-    def paymentReferenceId = column[Long]("PAYMENT_REFERENCE_ID")
-    def products = column[String]("PRODUCTS")
+    def paymentIdentifier = column[Long]("PAYMENT_IDENTIFIER")
+    def orderItemIds = column[String]("ORDER_ITEM_IDS")
     def source = column[String]("SOURCE")
     def status = column[String]("STATUS")
 
     override def * =
-      (id.?, createdAt.?, updatedAt.?, messageSeqNr, (customerId, orderId, paymentReferenceId, products, source, status)).shaped <> ({
+      (id.?, createdAt.?, updatedAt.?, messageSeqNr, (userId, orderId, paymentIdentifier, orderItemIds, source, status)).shaped <> ({
         case (id, createdAt, updatedAt, messageSeqNr, orderInfo) =>
           OrderEntity(id, createdAt, updatedAt, messageSeqNr, DBOrder.tupled.apply(orderInfo))
       }, { oe: OrderEntity =>

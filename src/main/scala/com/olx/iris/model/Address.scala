@@ -1,6 +1,6 @@
 package com.olx.iris.model
 
-case class Address (
+case class Address(
   addressLines: List[String] = List(),
   city: String,
   country: String,
@@ -10,8 +10,7 @@ case class Address (
   stateCode: Option[String] = Option.empty,
   street: String,
   userId: String,
-  zipCode: String
-)
+  zipCode: String)
 
 final case class DBAddress(
   addressLines: String = "",
@@ -23,5 +22,4 @@ final case class DBAddress(
   stateCode: Option[String] = Option.empty,
   street: String,
   userId: String,
-  zipCode: String
-)
+  zipCode: String)

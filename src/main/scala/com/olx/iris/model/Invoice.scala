@@ -5,5 +5,4 @@ case class Invoice(
   invoiceLocation: String,
   invoiceType: InvoiceType,
   notified: Boolean,
-  transactionId: String
-)
+  transactionId: String)

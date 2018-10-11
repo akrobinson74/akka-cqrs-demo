@@ -1,0 +1,15 @@
+CREATE TABLE customers(
+  ID            BIGINT(20) PRIMARY KEY  NOT NULL AUTO_INCREMENT,
+  CREATED_AT    TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UPDATED_AT    TIMESTAMP               NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  MSG_SEQ_NR    BIGINT(20)              NOT NULL,
+  ADDRESS_ID    BIGINT(20)              NOT NULL,
+  BUSINESS_NAME TEXT,
+  EMAIL_ADDRESS TEXT                    NOT NULL,
+  FIRST_NAME    TEXT                    NOT NULL,
+  LANGUAGE      TEXT                    NOT NULL,
+  LAST_NAME     TEXT                    NOT NULL,
+  CUSTOMER_TYPE TEXT                    NOT NULL,
+  USER_ID       TEXT                    NOT NULL,
+  VAT_NUMBER    TEXT                    NOT NULL
+)
