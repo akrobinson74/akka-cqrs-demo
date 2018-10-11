@@ -6,8 +6,7 @@ final case class Order(
   paymentReference: PaymentReference,
   products: List[Product],
   source: String,
-  status: Status
-)
+  status: Status)
 
 final case class DBOrder(
   customerId: Long,
@@ -15,5 +14,4 @@ final case class DBOrder(
   paymentReferenceId: Long,
   products: String,
   source: String,
-  status: String
-)
+  status: String)

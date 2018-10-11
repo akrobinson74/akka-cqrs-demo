@@ -10,8 +10,7 @@ final case class AddressEntity(
   createdAt: Option[Timestamp] = None,
   updatedAt: Option[Timestamp] = None,
   messageSeqNr: Long,
-  addressInfo: DBAddress
-)
+  addressInfo: DBAddress)
 
 trait AddressEntityTable {
 
@@ -25,8 +24,7 @@ trait AddressEntityTable {
     def updatedAt =
       column[Timestamp](
         "UPDATED_AT",
-        SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP")
-      )
+        SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"))
     def messageSeqNr = column[Long]("MSG_SEQ_NR")
     def addressLines = column[String]("ADDRESS_LINES")
     def city = column[String]("CITY")
@@ -46,12 +44,12 @@ trait AddressEntityTable {
         updatedAt.?,
         messageSeqNr,
         (addressLines, city, country, houseNumber, region, state, stateCode, street, userId, zipCode)).shaped <> ({
-        case (id, createdAt, updatedAt, messageSeqNr, addressInfo) =>
-          AddressEntity(id, createdAt, updatedAt, messageSeqNr, DBAddress.tupled.apply(addressInfo))
-      }, { ae: AddressEntity =>
-        def f1(a: DBAddress) = DBAddress.unapply(a).get
-        Some((ae.id, ae.createdAt, ae.updatedAt, ae.messageSeqNr, f1(ae.addressInfo)))
-      })
+          case (id, createdAt, updatedAt, messageSeqNr, addressInfo) =>
+            AddressEntity(id, createdAt, updatedAt, messageSeqNr, DBAddress.tupled.apply(addressInfo))
+        }, { ae: AddressEntity =>
+          def f1(a: DBAddress) = DBAddress.unapply(a).get
+          Some((ae.id, ae.createdAt, ae.updatedAt, ae.messageSeqNr, f1(ae.addressInfo)))
+        })
   }
 
   protected val addresses = TableQuery[Addresses]

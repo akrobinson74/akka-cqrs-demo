@@ -4,7 +4,7 @@ import com.olx.iris.util.DatabaseService
 
 import scala.concurrent.Future
 
-class AddressRepository(val databaseService: DatabaseService) extends AddressEntityTable {
+class AddressReadRepository(val databaseService: DatabaseService) extends AddressEntityTable {
 
   import databaseService._
   import databaseService.driver.api._

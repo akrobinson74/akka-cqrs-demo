@@ -1,27 +1,40 @@
 package com.olx.iris.write
 
-import akka.actor.{ActorLogging, Props}
+import akka.actor.{ ActorLogging, Props }
 import akka.persistence.PersistentActor
 import com.olx.iris.model.Address
-import com.olx.iris.write.AddressWriteRepository.{AddAddress, ConfirmAddAddress, GetAddresses}
+import com.olx.iris.write.AddressWriteRepository.{
+  AddAddress,
+  ConfirmAddAddress,
+  ConfirmUpdateAddress,
+  GetAddresses,
+  UpdateAddress
+}
 
 class AddressWriteRepository extends PersistentActor with ActorLogging {
-  private var addresses = Set.empty[Address]
+  private var addresses = Map.empty[String, Address]
 
   override def persistenceId: String = "address-write-repository"
 
   override def receiveCommand: Receive = {
-    case GetAddresses =>
-      sender() ! addresses
-    case AddAddress(id, address) =>
-    persist(address) { persistedAddress =>
-      receiveRecover(persistedAddress)
-      sender() ! ConfirmAddAddress(id)
-    }
+    case GetAddresses => sender() ! addresses.values.toSet
+
+    case AddAddress(id, address) => storeAddress(id, address)
+
+    case UpdateAddress(id, address) =>
+      storeAddress(id, address, true)
   }
 
   override def receiveRecover: Receive = {
-    case address: Address => addresses += address
+    case address: Address => addresses += (address.userId -> address)
+  }
+
+  def storeAddress(id: Long, address: Address, isUpdate: Boolean = false): Unit = {
+    persist(address) { persistedAddress =>
+      receiveRecover(persistedAddress)
+      val responseMsg = if (isUpdate) ConfirmUpdateAddress(id) else ConfirmAddAddress(id)
+      sender() ! responseMsg
+    }
   }
 }
 
@@ -32,5 +45,8 @@ object AddressWriteRepository {
 
   case object GetAddresses
   final case class AddAddress(deliveryId: Long, address: Address)
+  final case class UpdateAddress(deliveryId: Long, address: Address)
+
   final case class ConfirmAddAddress(deliveryId: Long)
+  final case class ConfirmUpdateAddress(deliveryId: Long)
 }

@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives
 import akka.pattern.ask
 import akka.util.Timeout
 import com.olx.iris.model.{ AddAddressCommand, Address, AddressAddedResponse, AddressExistsResponse }
-import com.olx.iris.read.AddressRepository
+import com.olx.iris.read.AddressReadRepository
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.swagger.annotations.{ Api, ApiImplicitParam, ApiImplicitParams, ApiOperation, ApiResponse, ApiResponses }
 import javax.ws.rs.Path
@@ -16,9 +16,8 @@ import scala.util.{ Failure, Success }
 @Api(value = "/addresses", produces = "application/json")
 class AddressService(
   addressAggregate: ActorRef,
-  addressRepository: AddressRepository,
-  internalTimeout: Timeout
-) extends Directives {
+  addressRepository: AddressReadRepository,
+  internalTimeout: Timeout) extends Directives {
 
   import FailFastCirceSupport._
   import io.circe.generic.auto._
@@ -35,8 +34,7 @@ class AddressService(
     responseContainer = "Set")
   @ApiResponses(
     Array(
-      new ApiResponse(code = 500, message = "Internal error")
-    ))
+      new ApiResponse(code = 500, message = "Internal error")))
   def addressesGetAll = get {
     onComplete(addressRepository.getAddresses()) {
       case Success(addresses) => complete(addresses.map(ae => ae.addressInfo))
@@ -51,13 +49,11 @@ class AddressService(
     httpMethod = "POST",
     produces = "application/json")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "address", dataType = "com.olx.iris.model.Address", paramType = "body", required = true)
-  ))
+    new ApiImplicitParam(name = "address", dataType = "com.olx.iris.model.Address", paramType = "body", required = true)))
   @ApiResponses(
     Array(
       new ApiResponse(code = 201, message = "Address created"),
-      new ApiResponse(code = 409, message = "Address exists")
-    ))
+      new ApiResponse(code = 409, message = "Address exists")))
   def addressPost = post {
     entity(as[Address]) { address =>
       onSuccess(addressAggregate ? AddAddressCommand(address)) {

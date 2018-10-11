@@ -9,8 +9,7 @@ final case class Customer(
   lastName: String,
   `type`: CustomerType,
   userId: String,
-  vatNumber: Option[String]
-)
+  vatNumber: Option[String])
 
 final case class DBCustomer(
   addressId: Long,
@@ -21,5 +20,4 @@ final case class DBCustomer(
   lastName: String,
   `type`: String,
   userId: String,
-  vatNumber: Option[String]
-)
+  vatNumber: Option[String])

@@ -15,7 +15,6 @@ class DatabaseService(jdbcUrl: String, dbUser: String, dbPassword: String) {
   import driver.api._
   val db = Database.forDataSource(
     ds = ds,
-    maxConnections = Option.empty
-  )
+    maxConnections = Option.empty)
   implicit val dbSession = db.createSession()
 }
