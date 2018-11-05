@@ -1,4 +1,5 @@
 package com.olx.iris
+
 import akka.actor.ActorRef
 import akka.http.scaladsl.model.{ HttpResponse, StatusCodes }
 import akka.http.scaladsl.server.Directives
@@ -58,9 +59,9 @@ class AddressService(
     entity(as[Address]) { address =>
       onSuccess(addressAggregate ? AddAddressCommand(address)) {
         case AddressAddedResponse(_) =>
-          complete(HttpResponse(StatusCodes.Created, entity = s"Address w/ userId (${address.userId}) added"))
+          complete(HttpResponse(StatusCodes.Created, entity = s"Address w/ userId (${address.addressId}) added"))
         case AddressExistsResponse(_) =>
-          complete(HttpResponse(StatusCodes.Conflict, entity = s"Address w/ userId (${address.userId}) already exists"))
+          complete(HttpResponse(StatusCodes.Conflict, entity = s"Address w/ userId (${address.addressId}) already exists"))
       }
     }
   }

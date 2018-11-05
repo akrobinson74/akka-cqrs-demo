@@ -77,9 +77,9 @@ class OrderAggregate extends PersistentActor with AtLeastOnceDelivery with Actor
     case MsgAddOrder(o) =>
       deliver(orderEventSender.path)(deliveryId => Msg(deliveryId, o))
       deliver(orderWriteRepository.path)(deliveryId => AddOrder(deliveryId, o))
-      deliver(customerAggregate.path)(deliveryId => AddCustomerCommand(o.customer))
-      deliver(paymentReferenceAggregate.path)(deliveryId => AddPaymentReferenceCommand(o.paymentReference))
-      o.products.foreach(product => deliver(productAggregate.path)(deliveryId => AddProductCommand(product)))
+      deliver(customerAggregate.path)(_ => AddCustomerCommand(o.customer))
+      deliver(paymentReferenceAggregate.path)(_ => AddPaymentReferenceCommand(o.paymentReference))
+      o.products.foreach(product => deliver(productAggregate.path)(_ => AddProductCommand(product)))
   }
 }
 

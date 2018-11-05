@@ -1,0 +1,29 @@
+version: '3.2'
+
+services:
+  akka-cassandra:
+    container_name: akka-cassandra
+    image: cassandra:latest
+    ports:
+    - "7000:7000"
+    - "17001:7001"
+    - "7199:7199"
+    - "9042:9042"
+    - "9160:9160"
+  akka-mariadb:
+    container_name: akka-mariadb
+    environment:
+    - MYSQL_ROOT_PASSWORD=root-pw
+    - MYSQL_PASSWORD=iris
+    - MYSQL_USER=iris
+    image: mariadb:latest
+    ports:
+    - "13306:3306"
+  akka-rabbit:
+    container_name: akka-rabbit
+    image: rabbitmq:3-management
+    ports:
+    - "5671:5671"
+    - "5672:5672"
+    - "15671:15671"
+    - "15672:15672"

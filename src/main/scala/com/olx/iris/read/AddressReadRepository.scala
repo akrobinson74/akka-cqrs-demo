@@ -13,8 +13,8 @@ class AddressReadRepository(val databaseService: DatabaseService) extends Addres
 
   def getAddressById(id: Long): Future[Option[AddressEntity]] = db.run(addresses.filter(_.id === id).result.headOption)
 
-  def getAddressByUserId(userId: String): Future[Option[AddressEntity]] =
-    db.run(addresses.filter(_.userId === userId).result.headOption)
+  def getAddressByUserId(addressId: String): Future[Option[AddressEntity]] =
+    db.run(addresses.filter(_.addressId === addressId).result.headOption)
 
   def createAddress(address: AddressEntity): Future[Long] = db.run((addresses returning addresses.map(_.id)) += address)
 

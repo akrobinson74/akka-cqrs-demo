@@ -26,7 +26,7 @@ class AddressWriteRepository extends PersistentActor with ActorLogging {
   }
 
   override def receiveRecover: Receive = {
-    case address: Address => addresses += (address.userId -> address)
+    case address: Address => addresses += (address.addressId -> address)
   }
 
   def storeAddress(id: Long, address: Address, isUpdate: Boolean = false): Unit = {

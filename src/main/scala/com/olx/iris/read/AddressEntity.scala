@@ -26,6 +26,7 @@ trait AddressEntityTable {
         "UPDATED_AT",
         SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"))
     def messageSeqNr = column[Long]("MSG_SEQ_NR")
+    def addressId = column[String]("ADDRESS_ID")
     def addressLines = column[String]("ADDRESS_LINES")
     def city = column[String]("CITY")
     def country = column[String]("COUNTRY")
@@ -34,7 +35,6 @@ trait AddressEntityTable {
     def state = column[Option[String]]("STATE")
     def stateCode = column[Option[String]]("STATE_CODE")
     def street = column[String]("STREET")
-    def userId = column[String]("USER_ID")
     def zipCode = column[String]("ZIP_CODE")
 
     override def * =
@@ -43,13 +43,35 @@ trait AddressEntityTable {
         createdAt.?,
         updatedAt.?,
         messageSeqNr,
-        (addressLines, city, country, houseNumber, region, state, stateCode, street, userId, zipCode)).shaped <> ({
+        (addressId, addressLines, city, country, houseNumber, region, state, stateCode, street, zipCode)).shaped <> ({
           case (id, createdAt, updatedAt, messageSeqNr, addressInfo) =>
-            AddressEntity(id, createdAt, updatedAt, messageSeqNr, DBAddress.tupled.apply(addressInfo))
+            AddressEntity(id, createdAt, updatedAt, messageSeqNr, (infoApply _).tupled(addressInfo))
         }, { ae: AddressEntity =>
           def f1(a: DBAddress) = DBAddress.unapply(a).get
           Some((ae.id, ae.createdAt, ae.updatedAt, ae.messageSeqNr, f1(ae.addressInfo)))
         })
+
+    def infoApply(
+      addressId: String,
+      addressLines: String = "",
+      city: String,
+      country: String,
+      houseNumber: String,
+      region: Option[String] = None,
+      state: Option[String] = None,
+      stateCode: Option[String] = None,
+      street: String,
+      zipCode: String) = DBAddress(
+      addressId,
+      addressLines,
+      city,
+      country,
+      houseNumber,
+      region,
+      state,
+      stateCode,
+      street,
+      zipCode)
   }
 
   protected val addresses = TableQuery[Addresses]

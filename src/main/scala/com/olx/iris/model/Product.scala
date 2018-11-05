@@ -19,3 +19,4 @@ case class Product(
   `type`: ProductType,
   unitPrice: BigDecimal = BigDecimal(1.00),
   units: BigInt)
+  extends DomainObject

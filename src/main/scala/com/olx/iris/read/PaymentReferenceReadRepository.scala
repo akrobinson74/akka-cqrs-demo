@@ -14,6 +14,9 @@ class PaymentReferenceReadRepository(val databaseService: DatabaseService) exten
   def getPaymentReferenceById(id: Long): Future[Option[PaymentReferenceEntity]] =
     db.run(paymentReferences.filter(_.id === id).result.headOption)
 
+  def getPaymentReferenceByPaymentId(paymentIdentifier: String): Future[Option[PaymentReferenceEntity]] =
+    db.run(paymentReferences.filter(_.paymentIdentifier === paymentIdentifier).result.headOption)
+
   def createPaymentReference(paymentReference: PaymentReferenceEntity): Future[Long] =
     db.run((paymentReferences returning paymentReferences.map(_.id)) += paymentReference)
 

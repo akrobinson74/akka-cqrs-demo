@@ -26,7 +26,7 @@ trait CustomerEntityTable {
         "UPDATED_AT",
         SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"))
     def messageSeqNr = column[Long]("MSG_SEQ_NR")
-    def addressId = column[Long]("ADDRESS_ID")
+    def addressId = column[String]("ADDRESS_ID")
     def businessName = column[Option[String]]("BUSINESS_NAME")
     def emailAddress = column[String]("EMAIL_ADDRESS")
     def firstName = column[String]("FIRST_NAME")
@@ -44,11 +44,31 @@ trait CustomerEntityTable {
         messageSeqNr,
         (addressId, businessName, emailAddress, firstName, languange, lastName, customerType, userId, vatNumber)).shaped <> ({
           case (id, createdAt, updatedAt, messageSeqNr, customerInfo) =>
-            CustomerEntity(id, createdAt, updatedAt, messageSeqNr, DBCustomer.tupled.apply(customerInfo))
+            CustomerEntity(id, createdAt, updatedAt, messageSeqNr, (infoApply _).tupled(customerInfo))
         }, { ce: CustomerEntity =>
           def f1(c: DBCustomer) = DBCustomer.unapply(c).get
           Some((ce.id, ce.createdAt, ce.updatedAt, ce.messageSeqNr, f1(ce.customerInfo)))
         })
+
+    def infoApply(
+      addressId: String,
+      businessName: Option[String],
+      emailAddress: String,
+      firstName: String,
+      language: String,
+      lastName: String,
+      customerType: String,
+      userId: String,
+      vatNumber: Option[String]) = DBCustomer(
+      addressId,
+      businessName,
+      emailAddress,
+      firstName,
+      language,
+      lastName,
+      customerType,
+      userId,
+      vatNumber)
 
     def idx_customer = index("idx_customer", userId, unique = true)
   }

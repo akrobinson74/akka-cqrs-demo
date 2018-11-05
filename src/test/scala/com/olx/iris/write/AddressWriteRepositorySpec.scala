@@ -31,7 +31,7 @@ class AddressWriteRepositorySpec
     houseNumber = "7001",
     state = Option[String]("LA"),
     street = "Neptune Ct",
-    userId = "player1",
+    addressId = "player1",
     zipCode = "70126")
 
   "An AddressWriteRepository" must {

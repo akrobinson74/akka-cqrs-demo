@@ -7,11 +7,31 @@ final case class Order(
   products: List[Product],
   source: String,
   status: Status)
+  extends DomainObject
 
 final case class DBOrder(
-  customerId: Long,
+  userId: String,
   orderId: String,
-  paymentReferenceId: Long,
+  paymentReferenceId: String,
   products: String,
   source: String,
   status: String)
+  extends DomainObject
+
+object DBOrder {
+  def apply(
+    userId: String,
+    orderId: String,
+    paymentReferenceId: String,
+    products: String,
+    source: String,
+    status: String): DBOrder = new DBOrder(userId, orderId, paymentReferenceId, products, source, status)
+
+  def apply(order: Order): DBOrder = new DBOrder(
+    order.customer.userId,
+    order.orderId,
+    order.paymentReference.paymentIdentifier,
+    order.products.foldLeft("") { (init, current) => init + "," + current.orderItemId },
+    order.source,
+    order.status.toString)
+}

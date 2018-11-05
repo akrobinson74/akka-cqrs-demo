@@ -4,7 +4,7 @@ name := "akka-cqrs-demo"
 organization := "com.olx"
 version := "1.0"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.7"
 scalacOptions ++= compilerFlags
 
 lazy val akkaVersion = "2.5.16"
@@ -28,7 +28,7 @@ libraryDependencies ++= Vector(
   Library.hikariCP,
   Library.log4jCore,
   Library.mariaDb,
-  Library.opRabbit,
+//  Library.opRabbit,
   Library.rabbitMQ,
   Library.slf4jLog4jBridge,
   Library.slick,
@@ -38,4 +38,14 @@ libraryDependencies ++= Vector(
   Library.akkaTestkit % "test",
   Library.scalaCheck % "test",
   Library.scalaTest % "test"
+)
+
+val opRabbitVersion = "2.1.0"
+
+libraryDependencies ++= Seq(
+  "com.spingo" %% "op-rabbit-core"        % opRabbitVersion,
+  "com.spingo" %% "op-rabbit-play-json"   % opRabbitVersion,
+  "com.spingo" %% "op-rabbit-json4s"      % opRabbitVersion,
+  "com.spingo" %% "op-rabbit-airbrake"    % opRabbitVersion,
+  "com.spingo" %% "op-rabbit-akka-stream" % opRabbitVersion
 )

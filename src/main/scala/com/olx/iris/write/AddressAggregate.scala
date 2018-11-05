@@ -33,7 +33,7 @@ class AddressAggregate extends PersistentActor with AtLeastOnceDelivery with Act
       val _ = pipe(addressesFuture.mapTo[Set[Address]].map(GetAddressesForwardResponse(origSender, _, newAddress))) to self
 
     case GetAddressesForwardResponse(origSender, addresses, newAddress) =>
-      if (addresses.exists(_.userId == newAddress.userId))
+      if (addresses.exists(_.addressId == newAddress.addressId))
         origSender ! AddressExistsResponse(newAddress)
       else {
         persist(MsgAddAddress(newAddress)) { persistedAddress =>
