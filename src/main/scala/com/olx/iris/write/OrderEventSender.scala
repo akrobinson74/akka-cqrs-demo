@@ -1,4 +1,5 @@
 package com.olx.iris.write
+
 import akka.actor.{ Actor, ActorLogging, ActorPath, Props, Status }
 import akka.camel.CamelMessage
 import com.olx.iris.model.{ DomainMessageType, Order }

@@ -1,24 +1,10 @@
 package com.olx.iris.read
 
-import akka.actor.{ ActorLogging, ActorRef, Props }
-import akka.actor.Status.Failure
-import akka.camel.{ Ack, CamelMessage, Consumer }
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.camel.Ack
 import com.olx.iris.ActorSettings
-import com.olx.iris.model.{
-  Address,
-  Customer,
-  DBAddress,
-  DBCustomer,
-  DBOrder,
-  DomainMessageType,
-  DomainObject,
-  Order,
-  PaymentReference,
-  Product
-}
-import com.olx.iris.model.DomainMessageType.{ ADDRESS, CUSTOMER, ORDER, PAYMENT_REFERENCE, PRODUCT }
-import com.olx.iris.read.EventReceiver.DOMAIN_MSG_TYPE
-import org.apache.camel.component.rabbitmq.RabbitMQConstants
+import com.olx.iris.model.{Address, Customer, DBAddress, DBCustomer, DBOrder, Order, PaymentReference, Product}
+import com.olx.iris.write.WriteSideEventSender.{UpdateAddressMsg, UpdateCustomerMsg, UpdateOrderMsg, UpdatePaymentMsg, UpdateProductMsg}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -47,61 +33,32 @@ class EventReceiver(
   orderRepository: OrderReadRepository,
   paymentReferenceRepository: PaymentReferenceReadRepository,
   productRepository: ProductReadRepository)
-    extends Consumer
+    extends Actor
     with ActorSettings
     with ActorLogging {
 
-  import io.circe._
-  import io.circe.generic.auto._
-  import io.circe.parser._
-
-  //  implicit val executionContext: ExecutionContext = global
-
-  override def endpointUri: String = settings.rabbitMQ.uri
-
-  override def autoAck = false
-
   override def receive: Receive = {
-    case msg: CamelMessage =>
-      val origSender = sender()
-      val domainMessageType: DomainMessageType = DomainMessageType(msg.headers.get(DOMAIN_MSG_TYPE).get.toString)
-      val body: Either[Error, DomainObject] = decodeBody(domainMessageType, msg)
+    case UpdateAddressMsg(deliveryId, address) =>
+      log.info("Event Received with id {} and for domain object: {}", deliveryId, "Address")
+      handleAddress(address, deliveryId, sender())
 
-      body.fold(
-        { error =>
-          log.error("Could not parse message: {}", msg)
-          origSender ! Failure(error)
-        }, { domainObject =>
-          val messageId: Long = decodeMessageId(msg)
+    case UpdateCustomerMsg(deliveryId, customer) =>
+      log.info("Event Received with id {} and for domain object: {}", deliveryId, "Customer")
+      handleCustomer(customer, deliveryId, sender())
 
-          log.info("Event Received with id {} and for domain object: {}", messageId, domainMessageType)
+    case UpdateOrderMsg(deliveryId, order) =>
+      log.info("Event Received with id {} and for domain object: {}", deliveryId, "Order")
+      handleOrder(order, deliveryId, sender())
 
-          handleDomainMessage(domainMessageType, domainObject, messageId, origSender)
-        }
-      )
+    case UpdatePaymentMsg(deliveryId, paymentReference) =>
+      log.info("Event Received with id {} and for domain object: {}", deliveryId, "PaymentReference")
+      handlePaymentReference(paymentReference, deliveryId, sender())
+
+    case UpdateProductMsg(deliveryId, product) =>
+      log.info("Event Received with id {} and for domain object: {}", deliveryId, "Product")
+      handleProduct(product, deliveryId, sender())
 
     case _ => log.warning("Unexpected event received")
-  }
-
-  def decodeBody(domainMessageType: DomainMessageType, msg: CamelMessage): Either[Error, DomainObject] =
-    domainMessageType match {
-      case ADDRESS           => decode[Address](msg.bodyAs[String])
-      case CUSTOMER          => decode[Customer](msg.bodyAs[String])
-      case ORDER             => decode[Order](msg.bodyAs[String])
-      case PAYMENT_REFERENCE => decode[PaymentReference](msg.bodyAs[String])
-      case PRODUCT           => decode[Product](msg.bodyAs[String])
-    }
-
-  def handleDomainMessage(
-    domainMessageType: DomainMessageType,
-    domainObject: DomainObject,
-    messageId: Long,
-    origSender: ActorRef) = domainMessageType match {
-    case ADDRESS           => handleAddress(domainObject.asInstanceOf[Address], messageId, origSender)
-    case CUSTOMER          => handleCustomer(domainObject.asInstanceOf[Customer], messageId, origSender)
-    case ORDER             => handleAddress(domainObject.asInstanceOf[Address], messageId, origSender)
-    case PAYMENT_REFERENCE => handleAddress(domainObject.asInstanceOf[Address], messageId, origSender)
-    case PRODUCT           => handleAddress(domainObject.asInstanceOf[Address], messageId, origSender)
   }
 
   def handleAddress(address: Address, messageId: Long, origSender: ActorRef) =
@@ -170,10 +127,4 @@ class EventReceiver(
               log.error(t, "Failed to persist Product with orderItemId: {}", product.orderItemId)
           }
     }
-
-  def decodeMessageId(msg: CamelMessage): Long = msg.headers.get(RabbitMQConstants.MESSAGE_ID) match {
-    case Some(id: Long)   => id
-    case Some(id: String) => id.toLong
-    case _                => -1
-  }
 }
